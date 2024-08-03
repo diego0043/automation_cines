@@ -198,6 +198,7 @@ for i in range(len(links)):
                                 By.ID, 'ContentPlaceHolder1_lblCensura').text
                             tanda = driver.find_element(
                                 By.ID, 'ContentPlaceHolder1_lblHorario').text
+                            tanda = tanda[:10]
                             moveDay = driver.find_element(
                                 By.ID, 'ContentPlaceHolder1_lblFecha').text
                             
