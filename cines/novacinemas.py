@@ -81,36 +81,11 @@ def select_current_date():
         print(f"No se pudo seleccionar la fecha actual")
 
 
-def select_all_movies_by_class(position_cine):
+def select_all_movies_by_method_one(position_cine):
     try:
-        init_div = 2 # rango: 0 - n
-        init_div_tanda = 1 # rango: 0 - n
-        init_div_tanda_col = 1 # rango: 0 - 2
-
-        if position_cine == 0:
-
-            # iteramos sobre todos los componentes padres de las peliculas
-            xpath_movie = driver.find_element(By.XPATH, '/html/body/main/div/div[1]/div[5]/ul/div[2]/li/div['+str(
-                init_div)+']/div[2]/div/h3')
-            
-
-        elif position_cine == 1:
-
-            # iteramos sobre todos los componentes padres de las peliculas
-            xpath_movie = driver.find_element(By.XPATH, '/html/body/main/div/div[1]/div[7]/ul/div[1]/li/div['+str(
-                init_div)+']/div[2]/div/h3')
-
-            # iteramos sobre todos los componentes padres de las tandas dentro de las peliculas
-            xpath_tanda = driver.find_element(By.XPATH, '/html/body/main/div/div[1]/div[7]/ul/div[1]/li/div['+str(init_div)+']/div[2]/div/div/div/div['+str(
-                init_div_tanda)+']/div['+str(init_div_tanda_col)+']')
-
-        elif position_cine == 2:
-            xpath_movie = driver.find_element(By.XPATH, '/html/body/main/div/div[1]/div[9]/ul/div[1]/li/div['+str(
-                init_div)+']/div[2]/div/h3')
-
-            # iteramos sobre todos los componentes padres de las tandas dentro de las peliculas
-            xpath_tanda = driver.find_element(By.XPATH, '/html/body/main/div/div[1]/div[9]/ul/div[2]/li/div[2]/div[2]/div/div/div/div/div['+str(init_div_tanda_col)+']')
-
+        init_div = 2  # rango: 0 - n
+        init_div_tanda = 1  # rango: 0 - n
+        init_div_tanda_col = 1  # rango: 0 - n
 
         # bandera para saber si existen peliculas y poder salir del ciclo
         exist_movies = True
@@ -119,68 +94,66 @@ def select_all_movies_by_class(position_cine):
         exist_functions = True
 
         # bandera para saber si existen funciones y poder salir del ciclo 3
-        exist_functions_tanda = True  
+        exist_functions_tanda = True
 
         while exist_movies:
 
-            # limpiar nombre de la pelicula y eliminar la calificacion
-            title_split = xpath_movie.text.rfind(" ")
-            title = xpath_movie.text[:title_split]
-            print( "Movie actual: " + title)
-
             init_div += 1
+
             try:
                 if position_cine == 0:
 
                     # buscar la pelicula para el cine 1
-                    xpath_movie = driver.find_element(By.XPATH, '/html/body/main/div/div[1]/div[5]/ul/div[2]/li/div['+str(
-                        init_div)+']/div[2]/div/h3')
-                    
+                    xpath_movie__ = '/html/body/main/div/div[1]/div[5]/ul/div[2]/li/div['+str(
+                        init_div-1)+']/div[2]/div/h3'
+                    xpath_movie = driver.find_element(By.XPATH, xpath_movie__)
+
                     if xpath_movie:
+
+                        i = 0
+                        # limpiar nombre de la pelicula y eliminar la calificacion
+                        title_split = xpath_movie.text.rfind(" ")
+                        title = xpath_movie.text[:title_split]
+                        print("Movie actual: " + title)
+
                         while exist_functions:
 
-                            while exist_functions_tanda: 
-                                try: 
+
+                            while exist_functions_tanda:
+                                try:
+                                    if i == 0:
+                                        init_div_tanda = 1
+                                        init_div_tanda_col = 1
+                                        i += 1
+
                                     # buscar la tanda para la sala 1
-                                    path_ = '/html/body/main/div/div[1]/div[5]/ul/div[2]/li/div['+str(init_div - 1)+']/div[2]/div/div/div/div['+str(init_div_tanda)+']/div['+str(init_div_tanda_col)+']'
-                                    xpath_tanda = driver.find_element(By.XPATH, path_)
-                                    init_div_tanda_col += 1
+                                    path_ = '/html/body/main/div/div[1]/div[5]/ul/div[2]/li/div['+str(
+                                        init_div - 1)+']/div[2]/div/div/div/div['+str(init_div_tanda)+']/div['+str(init_div_tanda_col)+']'
+                                    xpath_tanda = driver.find_element(
+                                        By.XPATH, path_)
                                     print(xpath_tanda.text)
+                                    init_div_tanda_col += 1
+
                                 except Exception as e:
-                                    print("No hay mas tandas para esta funcion")
                                     exist_functions_tanda = False
 
                             try:
                                 init_div_tanda_col = 1
                                 init_div_tanda += 1
-                                path_ = '/html/body/main/div/div[1]/div[5]/ul/div[2]/li/div['+str(init_div - 1)+']/div[2]/div/div/div/div['+str(init_div_tanda)+']/div['+str(init_div_tanda_col)+']'
+                                path_ = '/html/body/main/div/div[1]/div[5]/ul/div[2]/li/div['+str(
+                                    init_div - 1)+']/div[2]/div/div/div/div['+str(init_div_tanda)+']/div['+str(init_div_tanda_col)+']'
                                 # buscar la tanda para la sala 1
-                                print(path_)
-                                xpath_tanda = driver.find_element(By.XPATH, path_)
-                                print(xpath_tanda.text)
-                                init_div_tanda_col += 1
+                                xpath_tanda = driver.find_element(
+                                    By.XPATH, path_)
                                 exist_functions_tanda = True
                             except Exception as e:
-
-                                print("No hay mas tandas 2")
+                                print("<---------------------->")
                                 exist_functions = False
                                 init_div_tanda_col = 1
                                 init_div_tanda = 1
-                        
+
                         exist_functions = True
-
-                elif position_cine == 1:
-
-                    # buscar la pelicula para el cine 2
-                    xpath_movie = driver.find_element(By.XPATH, '/html/body/main/div/div[1]/div[7]/ul/div[1]/li/div['+str(
-                        init_div)+']/div[2]/div/h3')
-
-                elif position_cine == 2:
-
-                    # buscar la pelicula para el cine 3
-                    xpath_movie = driver.find_element(By.XPATH, '/html/body/main/div/div[1]/div[9]/ul/div[1]/li/div['+str(
-                        init_div)+']/div[2]/div/h3'
-                    )
+                        exist_functions_tanda = True
 
             except Exception as e:
                 exist_movies = False
@@ -189,12 +162,11 @@ def select_all_movies_by_class(position_cine):
         print(f"No se pudieron seleccionar todas las peliculas")
 
 
-for i in range(cines):
+for i in range(1):
     display_all_cines()
     select_cine(i)
     select_current_date()
-    select_all_movies_by_class(i)
-    print(i)
+    select_all_movies_by_method_one(0)
 
     # limpiar nombre del cine
     cine_name = ""
