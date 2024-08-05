@@ -10,6 +10,6 @@ __pycache__/
 .venv/
 
 #ignore config_selenium.py
-config_selenium.py
+#config_selenium.py
 
 
