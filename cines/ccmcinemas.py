@@ -16,6 +16,7 @@ country = "Costa Rica"
 cinema_brand = "CCM Cinemas"
 list_all = []
 split_fun = []
+current_date_ = datetime.date.today().strftime('%d-%m-%Y')
 
 def close_popup():
     try:
@@ -173,7 +174,7 @@ for i in range(len(links)):
                             moveDay = driver.find_element(
                                 By.ID, 'ContentPlaceHolder1_lblFecha').text
                             
-                            list_all.append([datetime.date.today().strftime('%d-%m-%Y'), country, cinema_brand, nameCine, nameMovie, tanda])
+                            list_all.append([current_date_, country, cinema_brand, nameCine, nameMovie, tanda])
 
                             # Volver a la página de la cartelera
                             return_tandas = driver.find_element(By.ID, 'A1')
@@ -215,5 +216,8 @@ for i in range(len(links)):
 
     
 # Guardar el libro de trabajo de Excel
-workbook.save(filename="ccmcinemas.xlsx")
+current_hour = datetime.datetime.now().strftime('%H-%M-%S')
+distin_name = "results/ccmcinemas-"+str(current_date_) + \
+    " "+str(current_hour)+".xlsx"
+workbook.save(filename=distin_name)
 print("Información de los cines guardada en el archivo Excel.")

@@ -16,6 +16,7 @@ list_all = []
 cartelera = driver.find_element(By.XPATH, '//*[@id="menu-item-103"]/a')
 cartelera.click()
 
+
 def waitingPage():
     # Esperar a que la página se cargue completamente (ajustar según necesidad)
     WebDriverWait(driver, 10).until(
@@ -165,6 +166,7 @@ def add_data_to_excel(list):
 
     list_all.clear()
 
+
 for i in range(3):
     display_all_cines()
     cine_name = select_cine(i)
@@ -173,5 +175,9 @@ for i in range(3):
 
 add_data_to_excel(list_all)
 
-workbook.save(filename="novacinemas.xlsx")
+
+current_hour = datetime.datetime.now().strftime('%H-%M-%S')
+distin_name = "results/novacinemas-"+str(current_date_) + \
+    " "+str(current_hour)+".xlsx"
+workbook.save(filename=distin_name)
 print("Informacion de los cines guardada en el archivo Excel.")

@@ -11,6 +11,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
+
 def close_popup():
     try:
         WebDriverWait(driver, 10).until(
@@ -21,6 +22,7 @@ def close_popup():
         close_button.click()
     except Exception as e:
         print(f"No hay pop-up para cerrar")
+
 
 def write_movie_data(sheet, date, country, cinema_brand, cinema_location, movie_title, time, language, classification):
     next_row = sheet.max_row + 1
@@ -33,27 +35,33 @@ def write_movie_data(sheet, date, country, cinema_brand, cinema_location, movie_
     sheet.cell(row=next_row, column=7).value = language
     sheet.cell(row=next_row, column=8).value = classification
 
+
 def scrape_movie_details(movie_listing):
     # Extraer el título de la película
     try:
-        movie_title_element = movie_listing.find_element(By.CSS_SELECTOR, ".informacion-general h3")
+        movie_title_element = movie_listing.find_element(
+            By.CSS_SELECTOR, ".informacion-general h3")
     except:
-        movie_title_element = movie_listing.find_element(By.CSS_SELECTOR, "header h3 a")
+        movie_title_element = movie_listing.find_element(
+            By.CSS_SELECTOR, "header h3 a")
 
     movie_title = movie_title_element.text.strip()
 
     # Extraer los formatos y sus horarios
     formats_with_times = {}
     try:
-        format_elements = movie_listing.find_elements(By.CSS_SELECTOR, ".formatos .formato")
+        format_elements = movie_listing.find_elements(
+            By.CSS_SELECTOR, ".formatos .formato")
 
         if format_elements:
 
             for format_element in format_elements:
                 # Verifica si hay una imagen que indique el formato "3D"
-                formato_imagen_div = format_element.find_elements(By.CSS_SELECTOR, ".formato-imagen")
+                formato_imagen_div = format_element.find_elements(
+                    By.CSS_SELECTOR, ".formato-imagen")
                 if formato_imagen_div:
-                    formato_imagen = formato_imagen_div[0].find_element(By.TAG_NAME, "img")
+                    formato_imagen = formato_imagen_div[0].find_element(
+                        By.TAG_NAME, "img")
                     imagen_alt = formato_imagen.get_attribute("alt")
                     if '3D' in imagen_alt:
                         format_type = "3D"
@@ -63,45 +71,51 @@ def scrape_movie_details(movie_listing):
                         format_type = "2D"
                 else:
                     format_type = "2D"
-                
+
                 # Obtén el nombre del formato (SUB o DOB) y combínalo con el tipo (2D o 3D)
-                format_name = format_element.find_element(By.CSS_SELECTOR, ".formato-nombre").text.strip()
-                
+                format_name = format_element.find_element(
+                    By.CSS_SELECTOR, ".formato-nombre").text.strip()
+
                 # Obtén los horarios
 
-                times = [a.text.strip() for a in format_element.find_elements(By.CSS_SELECTOR, ".horas a p")]
+                times = [a.text.strip() for a in format_element.find_elements(
+                    By.CSS_SELECTOR, ".horas a p")]
 
                 if format_name in formats_with_times:
-                    formats_with_times[format_name].append((times, format_type))
+                    formats_with_times[format_name].append(
+                        (times, format_type))
                 else:
                     formats_with_times[format_name] = [(times, format_type)]
         else:
-                raise NoSuchElementException
+            raise NoSuchElementException
 
     except NoSuchElementException:
-        format_elements = movie_listing.find_elements(By.CSS_SELECTOR, ".horarioExp")
-        
+        format_elements = movie_listing.find_elements(
+            By.CSS_SELECTOR, ".horarioExp")
+
         for format_element in format_elements:
-            times = [a.text.strip() for a in format_element.find_elements(By.CSS_SELECTOR, "time a")]
+            times = [a.text.strip() for a in format_element.find_elements(
+                By.CSS_SELECTOR, "time a")]
 
-            format_type=format_element.find_element(By.CSS_SELECTOR, "p span").text.strip().replace("\n", "").replace("\r", "")
-            
+            format_type = format_element.find_element(
+                By.CSS_SELECTOR, "p span").text.strip().replace("\n", "").replace("\r", "")
+
             if format_type != "3D":
-                format_type="2D"
+                format_type = "2D"
 
-            format_name=format_element.get_attribute("class").split()[-1]
-            
+            format_name = format_element.get_attribute("class").split()[-1]
+
             if format_name in formats_with_times:
                 formats_with_times[format_name].append((times, format_type))
             else:
                 formats_with_times[format_name] = [(times, format_type)]
 
-
     return movie_title, formats_with_times
 
+current_date_ = datetime.date.today().strftime('%d-%m-%Y')
 cinepolis_urls = [
     "https://cinepolis.com.sv/",
-    "https://cinepolis.com.gt", 
+    "https://cinepolis.com.gt",
     "https://cinepolis.co.cr/",
     "https://cinepolis.com.pa/"
 ]
@@ -147,7 +161,7 @@ for url in cinepolis_urls:
 
         except NoSuchElementException:
             print("Ninguno de los IDs fue encontrado.")
-    
+
     options = select.options
 
     driver.implicitly_wait(5)
@@ -159,18 +173,20 @@ for url in cinepolis_urls:
         location_text = selected_option.text
         country = location_text.split(', ')[-1]
 
-        if country=='Jutiapa' or country=='Zacapa'or country=='San Pedro Carchá':
-            country='Guatemala'
-        elif country=='David Chiriquí':
-            country='Panamá'
+        if country == 'Jutiapa' or country == 'Zacapa' or country == 'San Pedro Carchá':
+            country = 'Guatemala'
+        elif country == 'David Chiriquí':
+            country = 'Panamá'
 
         try:
-            button_element = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
-            
+            button_element = driver.find_element(
+                By.CSS_SELECTOR, "button[type='submit']")
+
         except:
             try:
-                button_element = driver.find_element(By.CSS_SELECTOR, ".btnEnviar[type='submit']")
-                
+                button_element = driver.find_element(
+                    By.CSS_SELECTOR, ".btnEnviar[type='submit']")
+
             except:
                 print(f"No se pudo encontrar el botón o el input: {e}")
 
@@ -178,14 +194,16 @@ for url in cinepolis_urls:
 
         # Encuentra todos los elementos que contienen información de un cine
         try:
-            cinemas = driver.find_elements(By.CSS_SELECTOR, "#listBillboards .ScheduleMovie__ScheduleMovieComponent-sc-7752wm-0")
-            
+            cinemas = driver.find_elements(
+                By.CSS_SELECTOR, "#listBillboards .ScheduleMovie__ScheduleMovieComponent-sc-7752wm-0")
+
             if not cinemas:
                 raise NoSuchElementException
         except NoSuchElementException:
             try:
-                wait=WebDriverWait(driver,10)
-                cinemas=wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".divComplejo")))
+                wait = WebDriverWait(driver, 10)
+                cinemas = wait.until(EC.presence_of_all_elements_located(
+                    (By.CSS_SELECTOR, ".divComplejo")))
 
             except:
                 print("Ningun elemento fue encontrado.")
@@ -193,19 +211,24 @@ for url in cinepolis_urls:
         # Itera a través de cada cine
         for movie in cinemas:
             try:
-                cinema_element = movie.find_element(By.CSS_SELECTOR, "header[id^='cinema-']")
-                cinema_name = cinema_element.find_element(By.TAG_NAME, "h2").text
+                cinema_element = movie.find_element(
+                    By.CSS_SELECTOR, "header[id^='cinema-']")
+                cinema_name = cinema_element.find_element(
+                    By.TAG_NAME, "h2").text
                 cinema_name_parts = cinema_name.split(" ")
                 cinema_brand = cinema_name_parts[0].capitalize()
                 cinema_location = " ".join(cinema_name_parts[1:]).title()
 
             except NoSuchElementException:
                 try:
-                    cinema_element = movie.find_element(By.CSS_SELECTOR, ".divFecha")
-                    cinema_name = cinema_element.find_element(By.TAG_NAME, "h2").text
+                    cinema_element = movie.find_element(
+                        By.CSS_SELECTOR, ".divFecha")
+                    cinema_name = cinema_element.find_element(
+                        By.TAG_NAME, "h2").text
                     cinema_name_parts = cinema_name.split(" ")
                     cinema_brand = cinema_name_parts[0].capitalize()
-                    cinema_location = " ".join(cinema_name_parts[1:]).title().strip().replace("\n", "").replace("\r", "")
+                    cinema_location = " ".join(cinema_name_parts[1:]).title(
+                    ).strip().replace("\n", "").replace("\r", "")
                     cinema_location = cinema_location[:-1].strip()
 
                 except:
@@ -213,27 +236,31 @@ for url in cinepolis_urls:
 
             try:
                 list_movies = movie.find_element(By.CLASS_NAME, "movies")
-                movie_elements= list_movies.find_elements(By.CSS_SELECTOR, ".SingleScheduleMovie__SingleScheduleComponent-sc-1n3hti2-0")
+                movie_elements = list_movies.find_elements(
+                    By.CSS_SELECTOR, ".SingleScheduleMovie__SingleScheduleComponent-sc-1n3hti2-0")
 
                 if not movie_elements:
                     raise NoSuchElementException
             except NoSuchElementException:
-                movie_elements = movie.find_elements(By.CSS_SELECTOR, "article.row.tituloPelicula")
+                movie_elements = movie.find_elements(
+                    By.CSS_SELECTOR, "article.row.tituloPelicula")
 
             for movie_listing in movie_elements:
                 # Extraer los detalles de la película
-                movie_title, formats_with_times = scrape_movie_details(movie_listing)
-                
+                movie_title, formats_with_times = scrape_movie_details(
+                    movie_listing)
+
                 # Escribir los datos de la película en la hoja de Excel para cada horario
                 for format_name, times_with_type in formats_with_times.items():
                     for times, format_type in times_with_type:
                         for time in times:
                             # Escribir los datos en el Excel:
-                            write_movie_data(sheet, datetime.date.today().strftime('%d-%m-%Y'),country, cinema_brand, cinema_location, movie_title, time, format_name,format_type)
-            
+                            write_movie_data(sheet, datetime.date.today().strftime(
+                                '%d-%m-%Y'), country, cinema_brand, cinema_location, movie_title, time, format_name, format_type)
+
         # Volver a la página principal para seleccionar la siguiente opción
         driver.get(url)
-        
+
         # seleccionar ciudad
         try:
             select = Select(driver.find_element(By.ID, 'ciudad'))
@@ -242,9 +269,12 @@ for url in cinepolis_urls:
                 select = Select(driver.find_element(By.ID, 'cmbCiudades'))
             except NoSuchElementException:
                 print("Ninguno de los IDs fue encontrado.")
-        
+
         # Guardar el libro de trabajo de Excel
-        workbook.save(filename="cinepolis.xlsx")
+        current_hour = datetime.datetime.now().strftime('%H-%M-%S')
+        distin_name = "results/cinepolis-"+str(current_date_) + \
+            " "+str(current_hour)+".xlsx"
+        workbook.save(filename=distin_name)
         print("Información de los cines guardada en el archivo Excel.")
 
 # Salir del controlador

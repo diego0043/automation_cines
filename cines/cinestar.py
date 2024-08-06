@@ -23,6 +23,8 @@ driver.maximize_window()
 time.sleep(2)
 country = "Guatemala"
 cinema_brand = "cinestar"
+current_date_ = datetime.date.today().strftime('%d-%m-%Y')
+
 
 # Localiza el elemento padre inicial
 parent_li_xpath = '//*[@id="menu-main-menu"]/li[5]'
@@ -101,4 +103,7 @@ for i in range(len(a_elements)):
     time.sleep(2)
 
 # Guardar el archivo
-workbook.save(filename='cine_star.xlsx')
+current_hour = datetime.datetime.now().strftime('%H-%M-%S')
+distin_name = "results/cine_star-"+str(current_date_) + \
+            " "+str(current_hour)+".xlsx"
+workbook.save(filename=distin_name)
