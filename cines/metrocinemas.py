@@ -1,3 +1,4 @@
+import os
 from config_selenium import *
 
 # Crear libro de trabajo, hoja y fila de encabezados
@@ -23,6 +24,7 @@ time.sleep(2)
 # Variables
 country = "Honduras"
 cinema_brand = "Metrocinemas"
+current_date_ = datetime.date.today().strftime('%d-%m-%Y')
 
 def get_cinema():
     try:
@@ -90,19 +92,37 @@ for index in range(len(li_cine)):
                 })
         
         for movie in movies_info:
-            print(movie)
-
+            next_row += 1
+            try:
+                sheet.cell(row=next_row, column=1).value = movie['date']
+                sheet.cell(row=next_row, column=2).value = movie['country']
+                sheet.cell(row=next_row, column=3).value = movie['cinema_brand']
+                sheet.cell(row=next_row, column=4).value = movie['cine_name']
+                sheet.cell(row=next_row, column=5).value = movie['title']
+                sheet.cell(row=next_row, column=6).value = movie['time']
+                sheet.cell(row=next_row, column=7).value = movie['format']
+                sheet.cell(row=next_row, column=8).value = movie['language']
+            except Exception as e:
+                print(f"Error al insertar la información en la hoja de cálculo: {e}")
+        
+        #print(movies_info)
         movies_info.clear()
-        '''
-        print("Lista de películas:", movies_info)
 
-        '''
         # y agregarla a movies_info si es necesario
         driver.get('https://www.metrocinemas.hn/main.aspx#')
         time.sleep(2)  # Espera un segundo para asegurarse de que la página se haya cargado correctamente
         
-    except:
-        print("Error al interactuar con los elementos de la cartelera")
+    except Exception as e:
+        print(f"Error extracting data: {e}")
+
+if not os.path.exists('results'):
+    os.makedirs('results')
+
+# Guardar el archivo
+current_hour = datetime.datetime.now().strftime('%H-%M-%S')
+distin_name = "results/metrocinemas_"+str(current_date_) + \
+            "_"+str(current_hour)+".xlsx"
+workbook.save(filename=distin_name)
 
 
 
