@@ -14,19 +14,15 @@ from selenium.webdriver.support.select import Select
 import time
 import re
 
-# Ruta al ejecutable de EdgeDriver ( especificar la ruta correcta )
-path = 'C:/Users/ve180/Downloads/edgedriver_win64/msedgedriver.exe'
-
-# Configurar las opciones de Edge
-options = Options()
-# Esta opción mantiene la pestaña abierta después de que el script termine
-options.detach = True
-
-# Configurar el servicio de EdgeDriver
-service = Service(executable_path=path)
-
-# Crear el driver de Edge con las opciones y el servicio configurados
-driver = webdriver.Edge(service=service, options=options)
+def close_popup(element):
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, element)))
+        # Cerrar el cuadro de diálogo emergente
+        close_button = driver.find_element(By.CSS_SELECTOR, element)
+        close_button.click()
+    except Exception as e:
+        print(f"No hay pop-up para cerrar")
 
 def write_movie_data(sheet, date, country, cinema_brand, cinema_location, movie_title, time, classification, language):
     next_row = sheet.max_row + 1
@@ -39,6 +35,22 @@ def write_movie_data(sheet, date, country, cinema_brand, cinema_location, movie_
     sheet.cell(row=next_row, column=7).value = classification
     sheet.cell(row=next_row, column=8).value = language
 
+
+# Ruta al ejecutable de EdgeDriver ( especificar la ruta correcta )
+path = 'C:/Users/Wizar/Documents/Curso de Business Intelligence y Big Data Febrero 2024/Proyecto Final/msedgedriver.exe'
+
+# Configurar las opciones de Edge
+options = Options()
+options.add_argument("--inprivate")
+options.add_argument("--start-maximized")
+# Esta opción mantiene la pestaña abierta después de que el script termine
+options.detach = True
+
+# Configurar el servicio de EdgeDriver
+service = Service(executable_path=path)
+
+# Crear el driver de Edge con las opciones y el servicio configurados
+driver = webdriver.Edge(service=service, options=options)
 
 # Crear libro de trabajo, hoja y fila de encabezados
 workbook = openpyxl.Workbook()
