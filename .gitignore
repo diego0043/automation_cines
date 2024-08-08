@@ -12,4 +12,7 @@ __pycache__/
 #ignore config_selenium.py
 #config_selenium.py
 
+#ignore results
+results/
+
 
