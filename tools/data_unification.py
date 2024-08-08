@@ -1,6 +1,7 @@
 import datetime
 import os
 import pandas as pd
+from openpyxl import load_workbook
 
 def find_excel_files(directory, keyword):
     try:
@@ -9,12 +10,34 @@ def find_excel_files(directory, keyword):
     except Exception as e:
         print(f"Error al buscar archivos Excel: {e}")
 
+def read_excel_file(file):
+    """Lee un archivo Excel y devuelve un DataFrame con las primeras 8 columnas."""
+    wb = load_workbook(filename=file, data_only=True)
+    ws = wb.active
+
+    data = []
+    for row in ws.iter_rows(min_row=2, values_only=True):  # Salta la primera fila (encabezado)
+        data.append(row[:8])  # Solo toma las primeras 8 columnas
+
+    df = pd.DataFrame(data)
+    return df
+
 def unify_excels(directory, keyword, output_file, header):
     """Unifica todos los archivos Excel en el directorio especificado que coincidan con la palabra clave."""
     try:
         files = find_excel_files(directory, keyword)
-        
-        dfs = [pd.read_excel(file, skiprows=1) for file in files]
+
+        dfs = []
+        for file in files:
+            df = read_excel_file(file)
+            if len(df.columns) != len(header):
+                print(f"El archivo {file} no tiene exactamente 8 columnas. Se omite este archivo.")
+                continue
+            dfs.append(df)
+
+        if not dfs:
+            print("No se encontraron archivos con el número correcto de columnas.")
+            return
 
         combined_df = pd.concat(dfs, ignore_index=True)
         combined_df.columns = header

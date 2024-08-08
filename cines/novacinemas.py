@@ -96,11 +96,13 @@ def select_all_movies_by_method(position_cine, cine_name):
                 cine_number = ''
                 ul_start_xpath = ''
                 cine_number = '5' if position_cine == 0 else '7' if position_cine == 1 else '9' if position_cine == 2 else 'Invalid'
-                ul_start_xpath = '2' if position_cine == 0 else '1'
+                ul_start_xpath = '9' if position_cine == 0 else '8' if position_cine == 1 else '1' if position_cine == 2 else 'Invalid'
 
+                # /html/body/main/div/div[1]/div[5]/ul/div[8]/li/div[2]/div[2]/div/div/div/div/div
                 # buscar la pelicula para el cine 1
                 xpath_movie__ = '/html/body/main/div/div[1]/div['+str(cine_number)+']/ul/div['+str(ul_start_xpath)+']/li/div['+str(
                     init_div-1)+']/div[2]/div/h3'
+                
                 xpath_movie = driver.find_element(By.XPATH, xpath_movie__)
 
                 if xpath_movie:

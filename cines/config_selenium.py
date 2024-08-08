@@ -35,9 +35,12 @@ def write_movie_data(sheet, date, country, cinema_brand, cinema_location, movie_
     sheet.cell(row=next_row, column=7).value = classification
     sheet.cell(row=next_row, column=8).value = language
 
-
 # Ruta al ejecutable de EdgeDriver ( especificar la ruta correcta )
-path = 'C:/Users/Wizar/Documents/Curso de Business Intelligence y Big Data Febrero 2024/Proyecto Final/msedgedriver.exe'
+
+paths = [
+    'C:/Users/ve180/Downloads/edgedriver_win64/msedgedriver.exe',
+    'C:/Users/Wizar/Documents/Curso de Business Intelligence y Big Data Febrero 2024/Proyecto Final/msedgedriver.exe',
+    ]
 
 # Configurar las opciones de Edge
 options = Options()
@@ -47,7 +50,7 @@ options.add_argument("--start-maximized")
 options.detach = True
 
 # Configurar el servicio de EdgeDriver
-service = Service(executable_path=path)
+service = Service(executable_path=paths[0])
 
 # Crear el driver de Edge con las opciones y el servicio configurados
 driver = webdriver.Edge(service=service, options=options)
