@@ -1,17 +1,9 @@
-import re
 import time
-import openpyxl
 import datetime
 from config_selenium import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.edge.service import Service
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 def scrape_movie_details(movie_listing):
     """
@@ -118,7 +110,7 @@ url ="https://cinepolis.com.hn/"
 # Navegar a la página web
 driver.get(url)
 driver.implicitly_wait(5)
-close_popup('.welcome-video-popup .button-close')
+close_popup(By.CSS_SELECTOR,'.welcome-video-popup .button-close')
 
 # Seleccionar cine
 try:
@@ -161,11 +153,7 @@ for option_link in options_links:
 		print("No se pudo seleccionar un cine")
 
 # Guardar el libro de trabajo de Excel
-current_hour = datetime.datetime.now().strftime('%H-%M-%S')
-distin_name = "results/cinepolis-"+str(current_date_) + \
-	" "+str(current_hour)+".xlsx"
-workbook.save(filename=distin_name)
-print("Información de los cines guardada en el archivo Excel.")
+save_excel("cinepolis",current_date_)
 
 # Salir del controlador
 driver.quit()

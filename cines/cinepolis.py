@@ -1,5 +1,3 @@
-import re
-import openpyxl
 import datetime
 import time
 from config_selenium import *
@@ -9,7 +7,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, ElementClickInterceptedException, TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
+
 
 def scrape_movie_details(movie_listing):
     """
@@ -89,9 +87,10 @@ def safe_find_elements(driver, by, value, attempts=3):
     """
     while attempts > 0:
         try:
-            elements = driver.find_elements(by, value)
+            wait = WebDriverWait(driver, 5)
+            elements = wait.until(EC.presence_of_all_elements_located((by, value))) 
             return elements
-        except StaleElementReferenceException:
+        except (NoSuchElementException, TimeoutException, StaleElementReferenceException) as e:
             attempts -= 1
             time.sleep(1)
     return []
@@ -130,7 +129,7 @@ cinepolis_links = [
 try:
     for url in cinepolis_links:
         driver.get(url)
-        close_popup('#takeover-close') # Cierra el popup de bienvenida si está presente
+        close_popup(By.ID,'takeover-close') # Cierra el popup de bienvenida si está presente
 
         # Intenta seleccionar la ciudad desde diferentes IDs posibles
         try:
@@ -147,7 +146,6 @@ try:
         # Iterar sobre las opciones disponibles para seleccionar la ciudad
         for i in range(len(options)):
             driver.get(url)
-            close_popup('#takeover-close')
             
             try:
                 # Seleccionar la opción nuevamente
@@ -199,21 +197,21 @@ try:
                         if safe_click(retry_button):
                             print('Hubo un error y se recargó la página')
                             retry_count += 1
-                            driver.implicitly_wait(10)  # Aumentar el tiempo de espera
+                            driver.implicitly_wait(5)  # Aumentar el tiempo de espera
                         else:
                             print("No se pudo hacer clic en el botón de reintento.")
                             raise NoSuchElementException
 
                 except NoSuchElementException:
                     try:
-                        wait = WebDriverWait(driver, 10)
+                        wait = WebDriverWait(driver, 5)
                         cinemas = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".divComplejo")))
 
                         if cinemas:
                             break
 
                     except TimeoutException:
-                        print("Ningún elemento fue encontrado.")
+                        print("No hay funciones disponibles")
                         break
 
             for movie in cinemas:
@@ -252,15 +250,11 @@ try:
                     # Escribir los datos de la película en la hoja de Excel para cada horario
                     for language, times_with_type in format_times_dict.items():
                         for schedule_times, format_type in times_with_type:
-                            for time in schedule_times:
+                            for time_movie in schedule_times:
                                 # Escribir los datos en el Excel:
-                                write_movie_data(sheet, datetime.date.today().strftime('%d-%m-%Y'), country, cinema_brand, cinema_location, movie_title, time, format_type, language)
-
+                                write_movie_data(sheet, current_date_, country, cinema_brand, cinema_location, movie_title, time_movie, format_type, language)
 finally:
-    driver.quit()
     # Guardar el libro de trabajo de Excel
-    current_hour = datetime.datetime.now().strftime('%H-%M-%S')
-    distin_name = "results/cinepolis-"+str(current_date_) + \
-        " "+str(current_hour)+".xlsx"
-    workbook.save(filename=distin_name)
-    print("Información de los cines guardada en el archivo Excel.")
+    save_excel("cinepolis",current_date_)
+
+    driver.quit()
