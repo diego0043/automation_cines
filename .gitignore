@@ -8,6 +8,7 @@
 __pycache__/
 
 .venv/
+env/
 
 #ignore config_selenium.py
 #config_selenium.py
